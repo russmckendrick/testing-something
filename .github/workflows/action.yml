@@ -30,6 +30,10 @@ jobs:
           output_path: results-dir
           ignore_on_exit: results
 
+      - name: check results-dir
+          # make sure results dir is created
+          run: ls -lhat results-dir
+
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
