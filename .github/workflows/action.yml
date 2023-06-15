@@ -28,6 +28,7 @@ jobs:
         with:
           path: './'
           output_path: results-dir
+          output_formats: 'json,sarif'
           ignore_on_exit: results
 
       - name: check results-dir
