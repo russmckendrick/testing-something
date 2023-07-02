@@ -30,7 +30,7 @@ jobs:
           output_path: results-dir
           output_formats: 'json,sarif'
           fail_on: high,medium
-          ignore_on_exit: results
+          # ignore_on_exit: results
 
       - name: check results-dir
         run: ls -lhat results-dir
@@ -45,6 +45,7 @@ jobs:
   run_ansible_playbook:
     name: "Run Ansible Playbook"
     runs-on: ubuntu-latest
+    needs: scan_ansible_playbook
     defaults:
       run:
         shell: bash
