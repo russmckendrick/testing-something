@@ -17,8 +17,8 @@ common_tags:
 # Resource names
 ##################################################
 
-resource_group_name: "{{ dict.resource_group }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
-virtual_network_name: "{{ dict.virtualnetwork }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+resource_group_name: "{{ playbook_dictionary.resource_group }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+virtual_network_name: "{{ playbook_dictionary.virtualnetwork }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
 
 # Virtual network
 ##################################################
@@ -27,19 +27,19 @@ vnet_config:
   cidr_block: "10.0.0.0/24"
   subnets:
     - {
-        name: "{{ dict.subnet }}-vms-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
+        name: "{{ playbook_dictionary.subnet }}-vms-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
         subnet: "10.0.0.0/27",
         private: true,
         service_endpoints: "Microsoft.Storage",
       }
     - {
-        name: "{{ dict.subnet }}-endpoints-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
+        name: "{{ playbook_dictionary.subnet }}-endpoints-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
         subnet: "10.0.0.32/27",
         private: true,
         service_endpoints: "Microsoft.Storage",
       }
     - {
-        name: "{{ dict.subnet }}-database-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
+        name: "{{ playbook_dictionary.subnet }}-database-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
         subnet: "10.0.0.64/27",
         private: true,
         service_endpoints: "Microsoft.Storage",
