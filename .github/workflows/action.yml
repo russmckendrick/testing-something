@@ -19,20 +19,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Mkdir results-dir
+      - name: "Create the folder for storing the scan results"
         # make sure results dir is created
         run: mkdir -p results-dir
       
-      - name: run kics Scan
-        uses: checkmarx/kics-github-action@v1.7.0
+      - name: "Run kics Scan"
+        uses: "checkmarx/kics-github-action@v1.7.0"
         with:
-          path: './'
-          output_path: results-dir
-          output_formats: 'json,sarif'
-          fail_on: high,medium
-          # ignore_on_exit: results
+          path: "./"
+          output_path: "results-dir"
+          output_formats: "json,sarif"
+          fail_on: "high,medium"
           enable_jobs_summary: true
-          # enable_comments: true
 
       - name: Upload SARIF file
         if: always()
@@ -40,7 +38,6 @@ jobs:
         with:
           sarif_file: results-dir/results.sarif
           wait-for-processing: true 
-          
 
   run_ansible_playbook:
     name: "Run Ansible Playbook"
@@ -51,31 +48,34 @@ jobs:
         shell: bash
 
     steps:
-      - name: Checkout the code
-        id: checkout
-        uses: actions/checkout@v3
+      - name: "Checkout the code"
+        id: "checkout"
+        uses: "actions/checkout@v3"
 
-      - name: Ensure that Python 3.10 is installed
-        uses: actions/setup-python@v4
+      - name: "Ensure that Python is installed"
+        uses: "actions/setup-python@v4"
         with:
           python-version: "3.10"
 
-      - name: Install Ansible
-        run: pip install ansible
+      - name: "Install Ansible"
+        run: |
+          pip install ansible
 
-      - name: Login to Azure using a service principal
-        uses: Azure/login@v1
+      - name: "Login to Azure using a service principal"
+        uses: "Azure/login@v1"
         with:
           creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
 
-      - name: Install Azure Collection
-        run: ansible-galaxy collection install azure.azcollection
+      - name: "Install Azure Collection"
+        run: |
+          ansible-galaxy collection install azure.azcollection
 
-      - name: Install Azure Requirements
-        run: pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+      - name: "Install Azure Requirements"
+        run: |
+          pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
 
-      - name: Run the playbook (with ansible-playbook)
-        id: ansible-playbook-run
+      - name: "Run the playbook (with ansible-playbook)"
+        id: "ansible-playbook-run"
         run: |
           ANSIBLE_OUTPUT=$(ansible-playbook site.yml)
           delimiter="$(openssl rand -hex 8)"
@@ -89,7 +89,7 @@ jobs:
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
-      - name: Publish Ansible Playbook run to Task Summary
+      - name: "Publish Ansible Playbook run to Task Summary"
         env:
           SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
         run: |
