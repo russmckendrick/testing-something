@@ -2,6 +2,7 @@ name: "Ansible Playbook Run"
 
 env:
   FAIL_ON: "high,medium"
+  RESULTS_DIR: "results-dir"
 
 on:
   push:
@@ -24,13 +25,13 @@ jobs:
 
       - name: "Create the folder for storing the scan results"
         # make sure results dir is created
-        run: mkdir -p results-dir
+        run: mkdir -p ${{env.RESULTS_DIR}}
       
       - name: "Run kics Scan"
         uses: "checkmarx/kics-github-action@v1.7.0"
         with:
           path: "./"
-          output_path: "results-dir"
+          output_path: "${{env.RESULTS_DIR}}"
           output_formats: "json,sarif"
           fail_on: "${{ env.FAIL_ON }}"
           enable_jobs_summary: true
@@ -39,7 +40,7 @@ jobs:
         if: always()
         uses: github/codeql-action/upload-sarif@v2
         with:
-          sarif_file: results-dir/results.sarif
+          sarif_file: ${{env.RESULTS_DIR}}/results.sarif
           wait-for-processing: true 
 
   run_ansible_playbook:
