@@ -24,11 +24,12 @@ jobs:
         run: mkdir -p results-dir
       
       - name: run kics Scan
-        uses: checkmarx/kics-github-action@v1.7.0
+        uses: checkmarx/kics-github-action@v1.7.2
         with:
           path: './'
           output_path: results-dir
           output_formats: 'json,sarif'
+          fail_on: high,medium
           ignore_on_exit: results
 
       - name: check results-dir
@@ -38,6 +39,8 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: results-dir/results.sarif
+          wait-for-processing: true 
+          
 
   run_ansible_playbook:
     name: "Run Ansible Playbook"
