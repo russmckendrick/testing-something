@@ -32,7 +32,7 @@ jobs:
           fail_on: high,medium
           # ignore_on_exit: results
           enable_jobs_summary: true
-          enable_comments: true
+          # enable_comments: true
 
       - name: Upload SARIF file
         if: always()
