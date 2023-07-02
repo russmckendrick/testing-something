@@ -71,7 +71,7 @@ jobs:
 
       - name: "List Ansible Collections"
         run: |
-          ls -lhat
+          ls -lhat ~/
 
   # run_ansible_playbook:
   #   name: "Install Ansible Playbook"
