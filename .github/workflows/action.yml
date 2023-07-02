@@ -52,10 +52,18 @@ jobs:
         shell: bash
 
     steps:      
+
+      - name: Cache Ansible
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.ansible
+
       - name: "Ensure that Python is installed"
         uses: "actions/setup-python@v4"
         with:
           python-version: "3.10"
+          cache: "pip"
 
       - name: "Install Ansible"
         run: |
@@ -68,10 +76,6 @@ jobs:
       - name: "Install Azure Requirements"
         run: |
           pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
-
-      - name: "List Ansible Collections"
-        run: |
-          ls -lhat ~/
 
   # run_ansible_playbook:
   #   name: "Install Ansible Playbook"
