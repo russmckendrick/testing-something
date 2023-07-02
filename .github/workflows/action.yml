@@ -1,5 +1,8 @@
 name: "Ansible Playbook Run"
 
+env:
+  FAIL_ON: "high,medium"
+
 on:
   push:
     branches:
@@ -29,7 +32,7 @@ jobs:
           path: "./"
           output_path: "results-dir"
           output_formats: "json,sarif"
-          fail_on: "high,medium"
+          fail_on: "${{ env.FAIL_ON }}"
           enable_jobs_summary: true
 
       - name: Upload SARIF file
