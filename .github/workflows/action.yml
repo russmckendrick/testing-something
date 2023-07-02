@@ -41,8 +41,8 @@ jobs:
           sarif_file: ${{env.RESULTS_DIR}}/results.sarif
           wait-for-processing: true 
 
-  install_ansible:
-    name: "Install Ansible Playbook"
+  run_ansible_playbook:
+    name: "Install Ansible and run Playbook"
     runs-on: ubuntu-latest
     needs: scan_ansible_playbook
     defaults:
@@ -62,9 +62,11 @@ jobs:
           key: ${{ runner.os }}-pip-ansible
           restore-keys: |
             ${{ runner.os }}-pip-
+
       - name: "Install Ansible"
         run: |
           pip install ansible
+
       - name: "Cache Azure collection"
         uses: actions/cache@v3
         with:
@@ -72,22 +74,13 @@ jobs:
           key: ${{ runner.os }}-ansible-collections
           restore-keys: |
             ${{ runner.os }}-ansible-collections-
+
       - name: "Install Azure Collection"
         run: |
           ansible-galaxy collection install azure.azcollection
       - name: "Install Azure Requirements"
         run: |
           pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
-
-  run_ansible_playbook:
-    name: "Run Ansible Playbook"
-    runs-on: ubuntu-latest
-    needs: install_ansible
-    defaults:
-      run:
-        shell: bash
-
-    steps:
 
       - name: "Checkout the code"
         id: "checkout"
@@ -101,7 +94,7 @@ jobs:
       - name: "Run the playbook (with ansible-playbook)"
         id: "ansible-playbook-run"
         run: |
-          ANSIBLE_OUTPUT=$(ansible-playbook -i inv site.yml -vvv)
+          ANSIBLE_OUTPUT=$(ansible-playbook -i inv site.yml)
           delimiter="$(openssl rand -hex 8)"
           echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
