@@ -101,7 +101,7 @@ jobs:
       - name: "Run the playbook (with ansible-playbook)"
         id: "ansible-playbook-run"
         run: |
-          ANSIBLE_OUTPUT=$(ansible-playbook -i inv site.yml)
+          ANSIBLE_OUTPUT=$(ansible-playbook -i inv site.yml -vvv)
           delimiter="$(openssl rand -hex 8)"
           echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
