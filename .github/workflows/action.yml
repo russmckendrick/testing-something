@@ -84,19 +84,19 @@ jobs:
         continue-on-error: true
         run: |
           ansible-playbook -i inv site.yml 2>&1 | tee ansible_output.log
-          delimiter="$(openssl rand -hex 8)"
-          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
           echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
-          echo '```' >> $GITHUB_OUTPUT
+          echo "\`\`\`" >> $GITHUB_OUTPUT
           cat ansible_output.log >> $GITHUB_OUTPUT
-          echo '```' >> $GITHUB_OUTPUT
+          echo "\`\`\`" >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
-          echo "${delimiter}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
       
       - name: "Publish Ansible Playbook run to Task Summary"
         run: |
-          cat ansible_output.log >> $GITHUB_STEP_SUMMARY
+          echo "Ansible Playbook run completed. Please check the job summary for details."
+        
         
       
