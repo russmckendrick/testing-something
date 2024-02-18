@@ -92,8 +92,8 @@ jobs:
           creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
 
       - name: "Run the playbook (with ansible-playbook)"
-          id: "ansible-playbook-run"
-          run: |
+        id: "ansible-playbook-run"
+        run: |
            ansible-playbook -vvv -i inv site.yml
 
       # - name: "Run the playbook (with ansible-playbook)"
