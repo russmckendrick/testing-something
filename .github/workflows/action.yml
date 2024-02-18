@@ -56,10 +56,10 @@ jobs:
           path: |
             ~/.ansible/collections
             ~/.cache/pip
-            /usr/lib/python3/dist-packages
-          key: ${{ runner.os }}-ansible-collections-${{ hashFiles('**/requirements-azure.txt') }}
+            /home/runner/.local/lib/python3.10/site-packages
+          key: ${{ runner.os }}-ansible-collections-and-python-packages
           restore-keys: |
-            ${{ runner.os }}-ansible-collections-and python-packages-${{ hashFiles('**/requirements-azure.txt') }}
+            ${{ runner.os }}-ansible-collections-and-python-packages
         
       - name: "Install Azure Collection"
         run: |
