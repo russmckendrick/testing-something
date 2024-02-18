@@ -3,7 +3,7 @@
 
 - name: "Create the virtual network"
   azure.azcollection.azure_rm_virtualnetwork:
-    resource_group: "{{ resource_group_output.state.name }}"
+    resource_group: "{{ resource_group_output.state.name.error.please.fix }}"
     name: "{{ virtual_network_name }}"
     address_prefixes: "{{ vnet_config.cidr_block }}"
     tags: "{{ common_tags }}"
