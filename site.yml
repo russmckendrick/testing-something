@@ -3,7 +3,7 @@
 - name: Deploy and configure the Azure Environment
   hosts: localhost
   connection: local
-  # gather_facts: true
+  gather_facts: true
 
   vars_files:
     - group_vars/azure.yml
