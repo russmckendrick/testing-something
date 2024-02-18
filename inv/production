@@ -1,3 +1,6 @@
+[local]
+localhost ansible_connection=local
+
 # Register all of the host groups we will be creating in the playbooks
 [vmgroup]
 
