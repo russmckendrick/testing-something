@@ -83,23 +83,17 @@ jobs:
         id: "ansible-playbook-run"
         continue-on-error: true
         run: |
-          ansible-playbook -i inv site.yml >ansible_output.log 2>&1
-          EXIT_CODE=$?
+          ansible-playbook -i inv site.yml 2>&1 | tee ansible_output.log
           echo "summary<<EOF" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
           echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
-          echo "```" >> $GITHUB_OUTPUT
+          echo "\`\`\`" >> $GITHUB_OUTPUT
           cat ansible_output.log >> $GITHUB_OUTPUT
-          echo "```" >> $GITHUB_OUTPUT
+          echo "\`\`\`" >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
-          if [ $EXIT_CODE -ne 0 ]; then
-            echo "## :warning: Error Detected" >> $GITHUB_OUTPUT
-            echo "Ansible playbook execution failed with exit code $EXIT_CODE. Please check the details above." >> $GITHUB_OUTPUT
-          fi
           echo "EOF" >> $GITHUB_OUTPUT
         
-    
       - name: "Publish Ansible Playbook run to Task Summary"
         env:
           SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
