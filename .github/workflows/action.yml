@@ -86,30 +86,30 @@ jobs:
         with:
           creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
 
-      - name: "Run the playbook (with ansible-playbook)"
-        id: "ansible-playbook-run"
-        run: |
-           ansible-playbook -vvv -i inv site.yml
-
       # - name: "Run the playbook (with ansible-playbook)"
       #   id: "ansible-playbook-run"
-      #   continue-on-error: true
       #   run: |
-      #     ANSIBLE_OUTPUT=$(ansible-playbook -vvv -i inv site.yml)
-      #     delimiter="$(openssl rand -hex 8)"
-      #     echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
-      #     echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
-      #     echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
-      #     echo "" >> $GITHUB_OUTPUT
-      #     echo '```' >> $GITHUB_OUTPUT
-      #     echo "$ANSIBLE_OUTPUT" >> $GITHUB_OUTPUT
-      #     echo '```' >> $GITHUB_OUTPUT
-      #     echo "</details>" >> $GITHUB_OUTPUT
-      #     echo "${delimiter}" >> $GITHUB_OUTPUT
+      #      ansible-playbook -vvv -i inv site.yml
 
-      # - name: "Publish Ansible Playbook run to Task Summary"
-      #   env:
-      #     SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
-      #   run: |
-      #     echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+      - name: "Run the playbook (with ansible-playbook)"
+        id: "ansible-playbook-run"
+        continue-on-error: true
+        run: |
+          ANSIBLE_OUTPUT=$(ansible-playbook -vvv -i inv site.yml)
+          delimiter="$(openssl rand -hex 8)"
+          echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
+          echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
+          echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo '```' >> $GITHUB_OUTPUT
+          echo "$ANSIBLE_OUTPUT" >> $GITHUB_OUTPUT
+          echo '```' >> $GITHUB_OUTPUT
+          echo "</details>" >> $GITHUB_OUTPUT
+          echo "${delimiter}" >> $GITHUB_OUTPUT
+
+      - name: "Publish Ansible Playbook run to Task Summary"
+        env:
+          SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
+        run: |
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
         
