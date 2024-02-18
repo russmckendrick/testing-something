@@ -1,8 +1,3 @@
 ---
-# Dictionary
-##################################################
-playbook_dictionary:
-  ansible_warning: "Resource managed by Ansible"
-  resource_group: "rg"
-  subnet: "snet"
-  virtualnetwork: "vnet"
+
+debug: false

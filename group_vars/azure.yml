@@ -1,24 +1,24 @@
 ---
-# Application and basicAzure Resource Configuration
+# Dictionary
 ##################################################
-
-app:
-  name: "ansible-github-actions" # don't get too creative
-  shortname: "ansghact" # all lower-case, all one word
-  location: "uksouth" # loction of where the resources are to be created
-  location_short: "uks" # short name for the location
-  env: "prod" # enviroment tag for the app
-
-common_tags:
-  "project": "{{ app.name }}"
-  "environment": "{{ app.env }}"
-  "deployed_by": "ansible"
+dict:
+  ansible_warning: "Resource managed by Ansible"
+  load_balancer: "lb"
+  network_interface: "nic"
+  nsg: "nsg"
+  private_endpoint: "pe"
+  public_ip: "pip"
+  resource_group: "rg"
+  subnet: "snet"
+  virtual_machine: "vm"
+  virtualnetwork: "vnet"
 
 # Resource names
 ##################################################
 
-resource_group_name: "{{ playbook_dictionary.resource_group }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
-virtual_network_name: "{{ playbook_dictionary.virtualnetwork }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+nsg_name: "{{ dict.nsg }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+resource_group_name: "{{ dict.resource_group }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+virtual_network_name: "{{ dict.virtualnetwork }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
 
 # Virtual network
 ##################################################
@@ -27,27 +27,37 @@ vnet_config:
   cidr_block: "10.0.0.0/24"
   subnets:
     - {
-        name: "{{ playbook_dictionary.subnet }}-vms-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
+        name: "{{ dict.subnet }}-vms-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
         subnet: "10.0.0.0/27",
         private: true,
         service_endpoints: "Microsoft.Storage",
       }
-    - {
-        name: "{{ playbook_dictionary.subnet }}-endpoints-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
-        subnet: "10.0.0.32/27",
-        private: true,
-        service_endpoints: "Microsoft.Storage",
-      }
-    - {
-        name: "{{ playbook_dictionary.subnet }}-database-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
-        subnet: "10.0.0.64/27",
-        private: true,
-        service_endpoints: "Microsoft.Storage",
-        service_delegation_name: "fs",
-        service_delegation: "Microsoft.DBforMySQL/flexibleServers",
-        service_delegation_action: "Microsoft.Network/virtualNetworks/subnets/join/action",
-      }
 
-# Set some defaults using the details defined up top
+trusted_ips:
+  - ""
+
+dynamic_ips:
+  - "{{ your_public_ip }}" # The IP address of whomever is running Ansible
+
+nsg_rules:
+  - name: "allowHTTP"
+    description: "{{ dict.ansible_warning }}"
+    protocol: "Tcp"
+    destination_port_range: "80"
+    source_address_prefix: "*"
+    access: "Allow"
+    priority: "100"
+    direction: "Inbound"
+  - name: "allowSSH"
+    description: "{{ dict.ansible_warning }}"
+    protocol: "Tcp"
+    destination_port_range: "{{ load_balancer.ssh_port }}"
+    source_address_prefix: "{{ trusted_ips|select() + dynamic_ips | unique }}"
+    access: "Allow"
+    priority: "150"
+    direction: "Inbound"
+
+# Some other settings
 ##################################################
 location: "{{ app.location }}"
+hosts_group: "vmgroup"
