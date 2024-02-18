@@ -50,11 +50,6 @@ jobs:
         shell: bash
 
     steps:      
-      - name: "Ensure that Python is installed"
-        uses: "actions/setup-python@v4"
-        with:
-          python-version: "3.12"
-
       # - name: "Cache Ansible installation"
       #   uses: actions/cache@v3
       #   with:
@@ -63,9 +58,9 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-pip-
 
-      - name: "Install Ansible"
-        run: |
-          pip3 install ansible 
+      # - name: "Install Ansible"
+      #   run: |
+      #     pip3 install ansible 
 
       # - name: "Cache Azure collection"
       #   uses: actions/cache@v3
