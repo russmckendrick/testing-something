@@ -61,9 +61,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-ansible-collections-and python-packages-${{ hashFiles('**/requirements-azure.txt') }}
 
-      - name: "Find Python site-packages path"
-        run: python -c "import site; print(site.getsitepackages())"
-
+      - name: "Find Python package installation path"
+        run: |
+          PACKAGE_NAME=$(head -n 1 ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt | cut -d'=' -f1)
+          PACKAGE_PATH=$(pip3 show $PACKAGE_NAME | grep Location | cut -d' ' -f2)
+          echo "Package $PACKAGE_NAME is installed at: $PACKAGE_PATH"
+        
       - name: "Install Azure Collection"
         run: |
           if [ ! -d ~/.ansible/collections/ansible_collections/azure/azcollection ]; then
