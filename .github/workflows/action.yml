@@ -83,7 +83,8 @@ jobs:
         id: "ansible-playbook-run"
         continue-on-error: true
         run: |
-          ANSIBLE_OUTPUT=$(ansible-playbook -vvv -i inv site.yml)
+          # Redirect both stdout and stderr to ANSIBLE_OUTPUT
+          ANSIBLE_OUTPUT=$(ansible-playbook -i inv site.yml 2>&1)
           delimiter="$(openssl rand -hex 8)"
           echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
@@ -94,9 +95,12 @@ jobs:
           echo '```' >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
-  
+          # Set the output variable to pass to the next step
+          echo "ansible_output<<EOF" >> $GITHUB_ENV
+          echo "$ANSIBLE_OUTPUT" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+      
       - name: "Publish Ansible Playbook run to Task Summary"
-        env:
-          SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
         run: |
-          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+          echo "$ANSIBLE_OUTPUT" >> $GITHUB_STEP_SUMMARY
+      
