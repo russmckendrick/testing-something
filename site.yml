@@ -5,10 +5,14 @@
   connection: local
   gather_facts: true
 
-  vars_files:
-    - group_vars/azure.yml
-    - group_vars/common.yml
+  # vars_files:
+  #   - group_vars/azure.yml
+  #   - group_vars/common.yml
 
-  roles:
-    - roles/azure-rg
-    - roles/azure-virtualnetwork
+  # roles:
+  #   - azure-rg
+  #   - azure-virtualnetwork
+
+  tasks:
+      - ansible.builtin.debug:
+          msg: "I am connecting to {{ ansible_nodename }} which is running {{ ansible_distribution }} {{ ansible_distribution_version }}"
