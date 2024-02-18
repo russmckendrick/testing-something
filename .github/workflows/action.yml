@@ -69,12 +69,6 @@ jobs:
           else
             echo "Azure collection is already installed."
           fi
-
-      - name: "Find Python package installation path"
-        run: |
-          PACKAGE_NAME=$(head -n 1 ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt | cut -d'=' -f1)
-          PACKAGE_PATH=$(pip3 show $PACKAGE_NAME | grep Location | cut -d' ' -f2)
-          echo "Package $PACKAGE_NAME is installed at: $PACKAGE_PATH"
           
       - name: "Checkout the code"
         id: "checkout"
@@ -89,35 +83,20 @@ jobs:
         id: "ansible-playbook-run"
         continue-on-error: true
         run: |
-          set -o pipefail  # Catch errors in piped commands
-          ANSIBLE_OUTPUT_FILE=ansible_output.log
-          ansible-playbook -vvv -i inv site.yml | tee $ANSIBLE_OUTPUT_FILE
-          ANSIBLE_EXIT_CODE="${PIPESTATUS[0]}"  # Capture the exit code of ansible-playbook
-
-          # Start constructing the task summary
+          ANSIBLE_OUTPUT=$(ansible-playbook -vvv -i inv site.yml)
           delimiter="$(openssl rand -hex 8)"
           echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
           echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo '```' >> $GITHUB_OUTPUT
-          cat $ANSIBLE_OUTPUT_FILE >> $GITHUB_OUTPUT
+          echo "$ANSIBLE_OUTPUT" >> $GITHUB_OUTPUT
           echo '```' >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
-
-          # Check if ansible-playbook failed and append an error message to the summary
-          if [ "$ANSIBLE_EXIT_CODE" -ne 0 ]; then
-            echo "## :warning: Error in Ansible Playbook" >> $GITHUB_OUTPUT
-            echo "Ansible Playbook failed with exit code $ANSIBLE_EXIT_CODE. Please check the details above." >> $GITHUB_OUTPUT
-          fi
-
           echo "${delimiter}" >> $GITHUB_OUTPUT
-
+  
       - name: "Publish Ansible Playbook run to Task Summary"
+        env:
+          SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
         run: |
-          SUMMARY=$(cat $GITHUB_OUTPUT)
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
-
-
-
-
