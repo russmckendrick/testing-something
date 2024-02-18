@@ -53,7 +53,7 @@ jobs:
       - name: "Ensure that Python is installed"
         uses: "actions/setup-python@v4"
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: "Cache Ansible installation"
         uses: actions/cache@v3
@@ -73,7 +73,7 @@ jobs:
           path: ~/.ansible/collections
           key: ${{ runner.os }}-ansible-collections
           restore-keys: |
-            ${{ runner.os }}-ansible-collections-
+            ${{ runner.os }}-ansible-collections
 
       - name: "Install Azure Collection"
         run: |
