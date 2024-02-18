@@ -6,7 +6,6 @@
   gather_facts: true
 
   vars_files:
-    - group_vars/azure.yml
     - group_vars/common.yml
 
   roles:
