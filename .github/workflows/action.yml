@@ -20,7 +20,7 @@ jobs:
   #     run:
   #       shell: bash
   #   steps:
-  #     - uses: actions/checkout@v3
+  #     - uses: actions/checkout@v4
 
   #     - name: "Create the folder for storing the scan results"
   #       run: mkdir -p ${{env.RESULTS_DIR}}
@@ -55,17 +55,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: "Cache Ansible installation"
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-ansible
-          restore-keys: |
-            ${{ runner.os }}-pip-
+      # - name: "Cache Ansible installation"
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.cache/pip
+      #     key: ${{ runner.os }}-pip-ansible
+      #     restore-keys: |
+      #       ${{ runner.os }}-pip-
 
-      - name: "Install Ansible"
-        run: |
-          pip install ansible
+      # - name: "Install Ansible"
+      #   run: |
+      #     pip install ansible
 
       # - name: "Cache Azure collection"
       #   uses: actions/cache@v3
@@ -75,16 +75,16 @@ jobs:
       #     restore-keys: |
       #       ${{ runner.os }}-ansible-collections
 
-      - name: "Install Azure Collection"
-        run: |
-          ansible-galaxy collection install --force azure.azcollection
-      - name: "Install Azure Requirements"
-        run: |
-          pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+      # - name: "Install Azure Collection"
+      #   run: |
+      #     ansible-galaxy collection install --force azure.azcollection
+      # - name: "Install Azure Requirements"
+      #   run: |
+      #     pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
 
       - name: "Checkout the code"
         id: "checkout"
-        uses: "actions/checkout@v3"
+        uses: "actions/checkout@v4"
 
       - name: "Login to Azure using a service principal"
         uses: "Azure/login@v1"
