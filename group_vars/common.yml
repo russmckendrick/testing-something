@@ -69,6 +69,12 @@ nsg_rules:
     priority: "150"
     direction: "Inbound"
 
+load_balancer:
+  ssh_port: "22"
+  ssh_port_backend: "22"
+  http_port: "80"
+  http_port_backend: "80"
+
 # Some other settings
 ##################################################
 location: "{{ app.location }}"
