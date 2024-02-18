@@ -55,11 +55,11 @@ jobs:
         with:
           path: |
             ~/.ansible/collections
-            ~/.cache/pip  # Assuming pip cache is also desired to be cached
-            path/to/python/site-packages  # Replace with the actual path
+            ~/.cache/pip
+            /usr/lib/python3/dist-packages
           key: ${{ runner.os }}-ansible-collections-${{ hashFiles('**/requirements-azure.txt') }}
           restore-keys: |
-            ${{ runner.os }}-ansible-collections-
+            ${{ runner.os }}-ansible-collections-and python-packages-${{ hashFiles('**/requirements-azure.txt') }}
 
       - name: "Find Python site-packages path"
         run: python -c "import site; print(site.getsitepackages())"
