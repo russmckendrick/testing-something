@@ -89,26 +89,35 @@ jobs:
         id: "ansible-playbook-run"
         continue-on-error: true
         run: |
-          set -e  # Stop on the first error
           set -o pipefail  # Catch errors in piped commands
           ANSIBLE_OUTPUT_FILE=ansible_output.log
-          ansible-playbook -vvv -i inv site.yml | tee $ANSIBLE_OUTPUT_FILE  # Redirect output to both stdout and a file
+          ansible-playbook -vvv -i inv site.yml | tee $ANSIBLE_OUTPUT_FILE
+          ANSIBLE_EXIT_CODE="${PIPESTATUS[0]}"  # Capture the exit code of ansible-playbook
+
+          # Start constructing the task summary
           delimiter="$(openssl rand -hex 8)"
           echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
           echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo '```' >> $GITHUB_OUTPUT
-          cat $ANSIBLE_OUTPUT_FILE >> $GITHUB_OUTPUT  # Ensure output is always published
+          cat $ANSIBLE_OUTPUT_FILE >> $GITHUB_OUTPUT
           echo '```' >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
+
+          # Check if ansible-playbook failed and append an error message to the summary
+          if [ "$ANSIBLE_EXIT_CODE" -ne 0 ]; then
+            echo "## :warning: Error in Ansible Playbook" >> $GITHUB_OUTPUT
+            echo "Ansible Playbook failed with exit code $ANSIBLE_EXIT_CODE. Please check the details above." >> $GITHUB_OUTPUT
+          fi
+
           echo "${delimiter}" >> $GITHUB_OUTPUT
 
       - name: "Publish Ansible Playbook run to Task Summary"
-        env:
-          SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
         run: |
+          SUMMARY=$(cat $GITHUB_OUTPUT)
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
 
 
 
