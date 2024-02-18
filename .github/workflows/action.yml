@@ -60,12 +60,6 @@ jobs:
           key: ${{ runner.os }}-ansible-collections-${{ hashFiles('**/requirements-azure.txt') }}
           restore-keys: |
             ${{ runner.os }}-ansible-collections-and python-packages-${{ hashFiles('**/requirements-azure.txt') }}
-
-      - name: "Find Python package installation path"
-        run: |
-          PACKAGE_NAME=$(head -n 1 ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt | cut -d'=' -f1)
-          PACKAGE_PATH=$(pip3 show $PACKAGE_NAME | grep Location | cut -d' ' -f2)
-          echo "Package $PACKAGE_NAME is installed at: $PACKAGE_PATH"
         
       - name: "Install Azure Collection"
         run: |
@@ -76,6 +70,12 @@ jobs:
             echo "Azure collection is already installed."
           fi
 
+      - name: "Find Python package installation path"
+        run: |
+          PACKAGE_NAME=$(head -n 1 ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt | cut -d'=' -f1)
+          PACKAGE_PATH=$(pip3 show $PACKAGE_NAME | grep Location | cut -d' ' -f2)
+          echo "Package $PACKAGE_NAME is installed at: $PACKAGE_PATH"
+          
       - name: "Checkout the code"
         id: "checkout"
         uses: "actions/checkout@v4"
