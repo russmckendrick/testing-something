@@ -65,22 +65,26 @@ jobs:
 
       - name: "Install Ansible"
         run: |
-          pip install ansible
+          pip install ansible 
 
-      - name: "Cache Azure collection"
-        uses: actions/cache@v3
-        with:
-          path: ~/.ansible/collections
-          key: ${{ runner.os }}-ansible-collections
-          restore-keys: |
-            ${{ runner.os }}-ansible-collections-
+      - name: "Install Azure SDK"
+        run: |
+          pip install 'azure>=2.0.0'
 
-      - name: "Install Azure Collection"
-        run: |
-          ansible-galaxy collection install --force azure.azcollection
-      - name: "Install Azure Requirements"
-        run: |
-          pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+      # - name: "Cache Azure collection"
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: ~/.ansible/collections
+      #     key: ${{ runner.os }}-ansible-collections
+      #     restore-keys: |
+      #       ${{ runner.os }}-ansible-collections-
+
+      # - name: "Install Azure Collection"
+      #   run: |
+      #     ansible-galaxy collection install --force azure.azcollection
+      # - name: "Install Azure Requirements"
+      #   run: |
+      #     pip install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
 
       - name: "Checkout the code"
         id: "checkout"
