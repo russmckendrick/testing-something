@@ -9,10 +9,10 @@
     - group_vars/azure.yml
     - group_vars/common.yml
 
-  # roles:
-  #   - azure-rg
-  #   - azure-virtualnetwork
+  roles:
+    - roles/azure-rg
+    - roles/azure-virtualnetwork
 
-  tasks:
-      - ansible.builtin.debug:
-          msg: "I am connecting to {{ ansible_nodename }} which is running {{ ansible_distribution }} {{ ansible_distribution_version }}"
+  # tasks:
+  #     - ansible.builtin.debug:
+  #         msg: "I am connecting to {{ ansible_nodename }} which is running {{ ansible_distribution }} {{ ansible_distribution_version }}"
