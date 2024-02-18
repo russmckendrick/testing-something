@@ -1,24 +1,19 @@
 ---
 # Dictionary
 ##################################################
-dict:
+azure_dict:
   ansible_warning: "Resource managed by Ansible"
-  load_balancer: "lb"
-  network_interface: "nic"
   nsg: "nsg"
-  private_endpoint: "pe"
-  public_ip: "pip"
   resource_group: "rg"
   subnet: "snet"
-  virtual_machine: "vm"
   virtualnetwork: "vnet"
 
 # Resource names
 ##################################################
 
-nsg_name: "{{ dict.nsg }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
-resource_group_name: "{{ dict.resource_group }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
-virtual_network_name: "{{ dict.virtualnetwork }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+nsg_name: "{{ azure_dict.nsg }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+resource_group_name: "{{ azure_dict.resource_group }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
+virtual_network_name: "{{ azure_dict.virtualnetwork }}-{{ app.name }}-{{app.env}}-{{ app.location_short }}"
 
 # Virtual network
 ##################################################
@@ -27,7 +22,7 @@ vnet_config:
   cidr_block: "10.0.0.0/24"
   subnets:
     - {
-        name: "{{ dict.subnet }}-vms-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
+        name: "{{ azure_dict.subnet }}-vms-{{ app.name }}-{{app.env}}-{{ app.location_short }}",
         subnet: "10.0.0.0/27",
         private: true,
         service_endpoints: "Microsoft.Storage",
@@ -41,7 +36,7 @@ dynamic_ips:
 
 nsg_rules:
   - name: "allowHTTP"
-    description: "{{ dict.ansible_warning }}"
+    description: "{{ azure_dict.ansible_warning }}"
     protocol: "Tcp"
     destination_port_range: "80"
     source_address_prefix: "*"
@@ -49,7 +44,7 @@ nsg_rules:
     priority: "100"
     direction: "Inbound"
   - name: "allowSSH"
-    description: "{{ dict.ansible_warning }}"
+    description: "{{ azure_dict.ansible_warning }}"
     protocol: "Tcp"
     destination_port_range: "{{ load_balancer.ssh_port }}"
     source_address_prefix: "{{ trusted_ips|select() + dynamic_ips | unique }}"
