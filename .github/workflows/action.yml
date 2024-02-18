@@ -93,10 +93,12 @@ jobs:
           echo "\`\`\`" >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-      
+    
       - name: "Publish Ansible Playbook run to Task Summary"
+        env:
+          SUMMARY: ${{ steps.ansible-playbook-run.outputs.summary }}
         run: |
-          echo "Ansible Playbook run completed. Please check the job summary for details."
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
         
         
       
