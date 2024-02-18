@@ -1,11 +1,6 @@
 ---
 # tasks file for roles/azure-virtualnetwork
 
-- name: "Debug - Resource Group result"
-  ansible.builtin.debug:
-    var: "resource_group_output"
-  when: debug_output
-
 - name: "Create the virtual network"
   azure.azcollection.azure_rm_virtualnetwork:
     resource_group: "{{ resource_group_output.state.name }}"

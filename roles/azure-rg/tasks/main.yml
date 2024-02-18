@@ -7,3 +7,8 @@
     location: "{{ location }}"
     tags: "{{ common_tags }}"
   register: "resource_group_output"
+
+- name: "Debug - Resource Group result"
+  ansible.builtin.debug:
+    var: "resource_group_output"
+  when: debug_output
