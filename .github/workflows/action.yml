@@ -86,14 +86,17 @@ jobs:
         id: "ansible-playbook-run"
         continue-on-error: true
         run: |
-          ANSIBLE_OUTPUT=$(ansible-playbook -vvv -i inv site.yml)
+          set -e  # Stop on the first error
+          set -o pipefail  # Catch errors in piped commands
+          ANSIBLE_OUTPUT_FILE=ansible_output.log
+          ansible-playbook -vvv -i inv site.yml | tee $ANSIBLE_OUTPUT_FILE  # Redirect output to both stdout and a file
           delimiter="$(openssl rand -hex 8)"
           echo "summary<<${delimiter}" >> $GITHUB_OUTPUT
           echo "## Ansible Playbook Output" >> $GITHUB_OUTPUT
           echo "<details><summary>Click to expand</summary>" >> $GITHUB_OUTPUT
           echo "" >> $GITHUB_OUTPUT
           echo '```' >> $GITHUB_OUTPUT
-          echo "$ANSIBLE_OUTPUT" >> $GITHUB_OUTPUT
+          cat $ANSIBLE_OUTPUT_FILE >> $GITHUB_OUTPUT  # Ensure output is always published
           echo '```' >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
           echo "${delimiter}" >> $GITHUB_OUTPUT
@@ -106,4 +109,3 @@ jobs:
 
 
 
-          
