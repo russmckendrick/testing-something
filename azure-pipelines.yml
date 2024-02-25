@@ -34,10 +34,10 @@ stages:
                 cat results.sarif | grep error
                 if [ $? -eq 0 ]
                 then
-                  echo "Failure: I found error <<severity: 'HIGH'>> in result, then failed."
+                  echo "Failure: I found error <<severity: 'MEDIUM'>> in result, then failed."
                   exit 1
                 else
-                  echo "Success: I did not find any error <<severity: 'HIGH'>> in result, then successed."
+                  echo "Success: I did not find any error <<severity: 'MEDIUM'>> in result, then successed."
                   exit 0
                 fi
               failOnStderr: true # boolean. Fail on Standard Error. Default: false.
