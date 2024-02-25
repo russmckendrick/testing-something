@@ -50,9 +50,7 @@ stages:
                 script: |
                   resultsFilePath="$(Pipeline.Workspace)/results.json"
                   BREAK=$(breakSeverity)
-                  jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath
                   noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath)
-                  echo "Number of issues: $noIssues"
                   if [ "$noIssues" -ge 1 ]; then
                     echo "##vso[task.logissue type=error]Pipeline failed due to more than $issueSeverity issue(s) found."
                   else
