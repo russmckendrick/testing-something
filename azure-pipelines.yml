@@ -24,10 +24,18 @@ stages:
             LATEST_VERSION=${LATEST_TAG#v}
             PACKAGE_NAME=kics_${LATEST_VERSION}_${OS}_x64.tar.gz
             TARGET_DIR=/home/vsts/kics
-            mkdir -p ${TARGET_DIR}
-            wget -q -c https://github.com/Checkmarx/kics/releases/download/${LATEST_TAG}/${PACKAGE_NAME} -O - | tar -xz -C ${TARGET_DIR}
-            echo '--- START SCANNING ---'
-            ${TARGET_DIR}/kics scan --no-progress -q ${TARGET_DIR}/assets/queries -p ${PWD} -o ${PWD}/kics-results.sarif
+
+            echo "LATEST_TAG: ${LATEST_TAG}"
+            echo "LATEST_VERSION: ${LATEST_VERSION}"
+            echo "PACKAGE_NAME: ${PACKAGE_NAME}"
+            echo "TARGET_DIR: ${TARGET_DIR}"
+            echo "OS: ${OS}"
+
+
+            # mkdir -p ${TARGET_DIR}
+            # wget -q -c https://github.com/Checkmarx/kics/releases/download/${LATEST_TAG}/${PACKAGE_NAME} -O - | tar -xz -C ${TARGET_DIR}
+            # echo '--- START SCANNING ---'
+            # ${TARGET_DIR}/kics scan --no-progress -q ${TARGET_DIR}/assets/queries -p ${PWD} -o ${PWD}/kics-results.sarif
         - task: PublishBuildArtifacts@1
           inputs:
             pathToPublish: $(System.DefaultWorkingDirectory)/kics-results.sarif
