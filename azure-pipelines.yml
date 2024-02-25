@@ -24,10 +24,7 @@ stages:
             inputs:
               pathToPublish: $(System.DefaultWorkingDirectory)/results.sarif
               artifactName: CodeAnalysisLogs
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
-            inputs:
-              artifact: CodeAnalysisLogs
+
 
 
   - stage: "scan_parse"
@@ -38,6 +35,10 @@ stages:
         pool:
           vmImage: "ubuntu-latest"
         steps:           
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
+            inputs:
+              artifact: CodeAnalysisLogs
           - task: Bash@3
             displayName: "Check for MEDIUM issues in the scan result"
             inputs:
