@@ -1,7 +1,5 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
+
+# https://marketplace.visualstudio.com/items?itemName=sariftools.scans
 
 trigger:
 - main
@@ -21,7 +19,7 @@ stages:
         steps:
           # Design to fail the pipeline on results error found and export the report in both json and SARIF format.
           - script: |
-              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif --ignore-on-exit results --exclude-paths 'you can put excluded file here.'
+              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif --ignore-on-exit results
               cat results.json
 
           # Scan results should be visible in the SARIF viewer tab of the build.
@@ -30,28 +28,28 @@ stages:
               pathToPublish: $(System.DefaultWorkingDirectory)/results.sarif
               artifactName: CodeAnalysisLogs
 
-          # Download the scan result, artifiact
-          - task: DownloadPipelineArtifact@2
-            displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
-            inputs:
-              artifact: CodeAnalysisLogs
+          # # Download the scan result, artifiact
+          # - task: DownloadPipelineArtifact@2
+          #   displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
+          #   inputs:
+          #     artifact: CodeAnalysisLogs
 
-          # Bash v3
-          # Run a Bash script to parsing the result on macOS, Linux, or Windows.
-          - task: Bash@3
-            displayName: 'Query the Scan Artifact Result - KICS Scanning'
-            inputs:
-              targetType: 'inline' # 'filePath' | 'inline'. Type. Default: filePath.
-              script: |
-                ls -l $(Pipeline.Workspace)/results.sarif
-                echo "Let me try to find out if any error here >>>"
-                cat $(Pipeline.Workspace)/results.sarif | grep error
-                if [ $? -eq 0 ]
-                then
-                  echo "Failure: I found error <<severity: 'HIGH'>> in result, then failed."
-                  exit 1
-                else
-                  echo "Success: I did not find any error <<severity: 'HIGH'>> in result, then successed."
-                  exit 0
-                fi
-              failOnStderr: true # boolean. Fail on Standard Error. Default: false.
+          # # Bash v3
+          # # Run a Bash script to parsing the result on macOS, Linux, or Windows.
+          # - task: Bash@3
+          #   displayName: 'Query the Scan Artifact Result - KICS Scanning'
+          #   inputs:
+          #     targetType: 'inline' # 'filePath' | 'inline'. Type. Default: filePath.
+          #     script: |
+          #       ls -l $(Pipeline.Workspace)/results.sarif
+          #       echo "Let me try to find out if any error here >>>"
+          #       cat $(Pipeline.Workspace)/results.sarif | grep error
+          #       if [ $? -eq 0 ]
+          #       then
+          #         echo "Failure: I found error <<severity: 'HIGH'>> in result, then failed."
+          #         exit 1
+          #       else
+          #         echo "Success: I did not find any error <<severity: 'HIGH'>> in result, then successed."
+          #         exit 0
+          #       fi
+          #     failOnStderr: true # boolean. Fail on Standard Error. Default: false.
