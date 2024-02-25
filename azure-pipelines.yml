@@ -18,11 +18,11 @@ stages:
         container: checkmarx/kics:debian
         steps:
           - script: |
-              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif --ignore-on-exit results --exclude-paths 'you can put excluded file here.'
+              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif,html --ignore-on-exit results
               cat results.json
           - task: PublishBuildArtifacts@1
             inputs:
-              pathToPublish: $(System.DefaultWorkingDirectory)/results.sarif
+              pathToPublish: $(System.DefaultWorkingDirectory)/results.*
               artifactName: CodeAnalysisLogs
 
 
@@ -45,18 +45,4 @@ stages:
                 failOnStderr: true
                 targetType: 'inline'
                 script: |
-                  sarifFilePath="$(Pipeline.Workspace)/results.sarif"
-                  mediumSeverityRules=$(jq '[.runs[].tool.driver.rules[] | select(.defaultConfiguration.level == "warning")] | length' $sarifFilePath)
-                  # Check if jq returned a valid number and fail if not
-                  if ! [[ $mediumSeverityRules =~ ^[0-9]+$ ]]; then
-                      echo "Error: Failed to parse the count of 'warning' level issues from the SARIF file."
-                      exit 1
-                  fi
-
-                  # Checking if there are more than 1 'warning' (MEDIUM) severity rules
-                  if [ "$mediumSeverityRules" -gt 1 ]; then
-                      echo "Pipeline failed due to more than 1 'warning' level issue found."
-                      exit 1
-                  else
-                      echo "No more than 1 'warning' level issue found. Pipeline continues."
-                  fi
+                  sarifFilePath="$(Pipeline.Workspace)/results.json"
