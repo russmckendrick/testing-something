@@ -24,34 +24,28 @@ stages:
             inputs:
               pathToPublish: $(System.DefaultWorkingDirectory)/results.sarif
               artifactName: CodeAnalysisLogs
-          - task: Bash@3
-            displayName: 'Query the Scan Artifact Result - KICS Scanning'
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
             inputs:
-              targetType: 'inline' # 'filePath' | 'inline'. Type. Default: filePath.
-              script: |
-                ls -l results.sarif
-                echo "Let me try to find out if any error here >>>"
-                cat results.sarif | grep error
-                if [ $? -eq 0 ]
-                then
-                  echo "Failure: I found error <<severity: 'MEDIUM'>> in result, then failed."
-                  exit 1
-                else
-                  echo "Success: I did not find any error <<severity: 'MEDIUM'>> in result, then successed."
-                  exit 0
-                fi
-              failOnStderr: true # boolean. Fail on Standard Error. Default: false.
+              artifact: CodeAnalysisLogs
 
-              
-              
-
-
-
-          # # Download the scan result, artifiact
-          # - task: DownloadPipelineArtifact@2
-          #   displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
-          #   inputs:
-          #     artifact: CodeAnalysisLogs
+          - task: Bash@3
+            displayName: "Check for MEDIUM issues in the scan result"
+            inputs:
+                failOnStderr: true
+                targetType: 'inline'
+                script: |
+                  sarifFilePath="$(Pipeline.Workspace)/results.sarif"
+                  echo "sarifFilePath: $sarifFilePath"
+                  mediumIssues=$(jq '.severity_counters.MEDIUM' $sarifFilePath)
+            
+                  if [ "$mediumIssues" -gt 1 ]; then
+                      echo "Pipeline failed due to $mediumIssues MEDIUM issue found."
+                      exit 1
+                  else
+                      echo "No issue found. Pipeline continues."
+                  fi
+          
 
           # # Bash v3
           # # Run a Bash script to parsing the result on macOS, Linux, or Windows.
