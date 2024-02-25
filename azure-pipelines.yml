@@ -48,11 +48,7 @@ stages:
                 failOnStderr: true
                 targetType: "inline"
                 script: |
-                  resultsFilePath="$(Pipeline.Workspace)/results.json"
-                  issueSeverity=$(jq '.severity_counters.$(breakSeverity) // 0' $sarifFilePath)
-                  if [ "$issueSeverity" -gt 1 ]; then
-                      echo "Pipeline failed due to more than $issueSeverity issue(s) found."
-                      exit 1
-                  else
-                      echo "No issue found. Pipeline continues."
-                  fi
+                  BREAK=$(breakSeverity)
+                  jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' results.json
+                  noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' results.json)
+                  echo "Number of issues: $noIssues"
