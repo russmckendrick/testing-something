@@ -53,7 +53,7 @@ jobs:
 
     steps:      
       - name: "Cache Ansible collections and Python packages"
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/.ansible/collections
