@@ -47,6 +47,7 @@ stages:
                 script: |
                   sarifFilePath="$(Pipeline.Workspace)/results.sarif"
                   echo "sarifFilePath: $sarifFilePath"
+                  cat $sarifFilePath
                   jq '.severity_counters.MEDIUM // 0' $sarifFilePath
           
 
