@@ -1,4 +1,3 @@
-
 # https://marketplace.visualstudio.com/items?itemName=sariftools.scans
 
 trigger:
@@ -43,6 +42,7 @@ stages:
             inputs:
               artifact: CodeAnalysisLogs
           - task: Bash@3
+            name: "setvar"
             displayName: "Check for issues in the scan result"
             inputs:
                 failOnStderr: true
@@ -52,7 +52,29 @@ stages:
                   BREAK=$(breakSeverity)
                   noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath)
                   if [ "$noIssues" -ge 1 ]; then
+                    echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]false"
                     echo "##vso[task.logissue type=error]Pipeline failed due to more than $issueSeverity issue(s) found."
                   else
                     echo "##vso[task.complete result=Succeeded;]No issue found. Progressing with pipeline"
+                    echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]true"
                   fi
+
+  - stage: "run_ansible"
+    displayName: "Run Ansible"
+    condition: |
+      and
+        (
+          succeeded(),
+          eq(dependencies.scan_parse.outputs['scan_parse.setvar.OK_TO_DEPLOY'], 'true')
+        ) 
+    jobs: 
+      - job: "ansible_install"
+        displayName: "Ansible"
+        steps:           
+          - task: Bash@3
+            name: "ansible"
+            displayName: "Run Ansible"
+            inputs:
+                targetType: "inline"
+                script: |
+                  echo "Run Ansible"
