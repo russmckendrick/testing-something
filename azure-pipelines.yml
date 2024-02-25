@@ -9,7 +9,7 @@ pool:
 
 stages:
   - stage: "scan"
-    displayName: "Scan Ansible Playbook"
+    displayName: "KICS - Scan Ansible Playbook"
     jobs: 
       - job: "kics_scan"
         displayName: "Run KICS Scan"
@@ -29,6 +29,15 @@ stages:
             inputs:
               artifact: CodeAnalysisLogs
 
+
+  - stage: "scan_parse"
+    displayName: "KICS - Parse Scan Resaults"
+    jobs: 
+      - job: "kics_scan_parse_result"
+        displayName: "Check KICS Scan Resaults"
+        pool:
+          vmImage: "ubuntu-latest"
+        steps:           
           - task: Bash@3
             displayName: "Check for MEDIUM issues in the scan result"
             inputs:
