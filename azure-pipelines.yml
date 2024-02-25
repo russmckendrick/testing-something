@@ -36,7 +36,7 @@ stages:
           vmImage: "ubuntu-latest"
         steps:           
           - task: DownloadPipelineArtifact@2
-            displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
+            displayName: "Download the Security Scan Artifact Result"
             inputs:
               artifact: CodeAnalysisLogs
           - task: Bash@3
@@ -46,27 +46,5 @@ stages:
                 targetType: 'inline'
                 script: |
                   sarifFilePath="$(Pipeline.Workspace)/results.sarif"
-                  echo "sarifFilePath: $sarifFilePath"
-                  cat $sarifFilePath
+                  jq -V
                   jq '.severity_counters.MEDIUM' $sarifFilePath
-          
-
-          # # Bash v3
-          # # Run a Bash script to parsing the result on macOS, Linux, or Windows.
-          # - task: Bash@3
-          #   displayName: 'Query the Scan Artifact Result - KICS Scanning'
-          #   inputs:
-          #     targetType: 'inline' # 'filePath' | 'inline'. Type. Default: filePath.
-          #     script: |
-          #       ls -l $(Pipeline.Workspace)/results.sarif
-          #       echo "Let me try to find out if any error here >>>"
-          #       cat $(Pipeline.Workspace)/results.sarif | grep error
-          #       if [ $? -eq 0 ]
-          #       then
-          #         echo "Failure: I found error <<severity: 'HIGH'>> in result, then failed."
-          #         exit 1
-          #       else
-          #         echo "Success: I did not find any error <<severity: 'HIGH'>> in result, then successed."
-          #         exit 0
-          #       fi
-          #     failOnStderr: true # boolean. Fail on Standard Error. Default: false.
