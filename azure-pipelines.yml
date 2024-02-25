@@ -48,7 +48,8 @@ stages:
                 failOnStderr: true
                 targetType: "inline"
                 script: |
+                  resultsFilePath="$(Pipeline.Workspace)/results.json"
                   BREAK=$(breakSeverity)
-                  jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' results.json
-                  noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' results.json)
+                  jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath
+                  noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath)
                   echo "Number of issues: $noIssues"
