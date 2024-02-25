@@ -29,9 +29,9 @@ stages:
             inputs:
               targetType: 'inline' # 'filePath' | 'inline'. Type. Default: filePath.
               script: |
-                ls -l $(Pipeline.Workspace)/results.sarif
+                ls -l results.sarif
                 echo "Let me try to find out if any error here >>>"
-                cat $(Pipeline.Workspace)/results.sarif | grep error
+                cat results.sarif | grep error
                 if [ $? -eq 0 ]
                 then
                   echo "Failure: I found error <<severity: 'HIGH'>> in result, then failed."
