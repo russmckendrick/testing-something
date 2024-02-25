@@ -18,11 +18,12 @@ stages:
         container: checkmarx/kics:debian
         steps:
           - script: |
-              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif,html --ignore-on-exit results
-              cat results.json
+              mkdir -p $(System.DefaultWorkingDirectory)/output
+              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif,html --ignore-on-exit $(System.DefaultWorkingDirectory)/output/results
+              ls -lhat $(System.DefaultWorkingDirectory)/output
           - task: PublishBuildArtifacts@1
             inputs:
-              pathToPublish: $(System.DefaultWorkingDirectory)/results.*
+              pathToPublish: $(System.DefaultWorkingDirectory)/output
               artifactName: CodeAnalysisLogs
 
 
