@@ -8,25 +8,44 @@ pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: 'KICS_Scanning'
-    displayName: 'KICS Scanning'
+  - stage: "scan"
+    displayName: "Scan Ansible Playbook"
     jobs: 
-      - job: 'KICS_Scanning'
-        displayName: 'KICS Scanning'
+      - job: "kics_scan"
+        displayName: "Run KICS Scan"
         pool:
           vmImage: "ubuntu-latest"
         container: checkmarx/kics:debian
         steps:
-          # Design to fail the pipeline on results error found and export the report in both json and SARIF format.
           - script: |
-              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif --ignore-on-exit results
+              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif --ignore-on-exit results --exclude-paths 'you can put excluded file here.'
               cat results.json
-
-          # Scan results should be visible in the SARIF viewer tab of the build.
           - task: PublishBuildArtifacts@1
             inputs:
               pathToPublish: $(System.DefaultWorkingDirectory)/results.sarif
               artifactName: CodeAnalysisLogs
+          - task: Bash@3
+            displayName: 'Query the Scan Artifact Result - KICS Scanning'
+            inputs:
+              targetType: 'inline' # 'filePath' | 'inline'. Type. Default: filePath.
+              script: |
+                ls -l $(Pipeline.Workspace)/results.sarif
+                echo "Let me try to find out if any error here >>>"
+                cat $(Pipeline.Workspace)/results.sarif | grep error
+                if [ $? -eq 0 ]
+                then
+                  echo "Failure: I found error <<severity: 'HIGH'>> in result, then failed."
+                  exit 1
+                else
+                  echo "Success: I did not find any error <<severity: 'HIGH'>> in result, then successed."
+                  exit 0
+                fi
+              failOnStderr: true # boolean. Fail on Standard Error. Default: false.
+
+              
+              
+
+
 
           # # Download the scan result, artifiact
           # - task: DownloadPipelineArtifact@2
