@@ -4,6 +4,9 @@
 trigger:
 - main
 
+variables:
+  breakSeverity: "MEDIUM"
+
 pool:
   vmImage: ubuntu-latest
 
@@ -27,8 +30,6 @@ stages:
               pathToPublish: $(System.DefaultWorkingDirectory)/output
               artifactName: CodeAnalysisLogs
 
-
-
   - stage: "scan_parse"
     displayName: "KICS - Parse Scan Resaults"
     jobs: 
@@ -42,9 +43,16 @@ stages:
             inputs:
               artifact: CodeAnalysisLogs
           - task: Bash@3
-            displayName: "Check for MEDIUM issues in the scan result"
+            displayName: "Check for issues in the scan result"
             inputs:
                 failOnStderr: true
-                targetType: 'inline'
+                targetType: "inline"
                 script: |
-                  sarifFilePath="$(Pipeline.Workspace)/results.json"
+                  resultsFilePath="$(Pipeline.Workspace)/results.json"
+                  issueSeverity=$(jq '.severity_counters.$(breakSeverity) // 0' $sarifFilePath)
+                  if [ "$issueSeverity" -gt 1 ]; then
+                      echo "Pipeline failed due to more than $issueSeverity issue(s) found."
+                      exit 1
+                  else
+                      echo "No issue found. Pipeline continues."
+                  fi
