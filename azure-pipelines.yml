@@ -17,6 +17,8 @@ stages:
       displayName: runKics
       steps:
         - script: |
+            pwd
+            ls -lhat
             OS=$(uname -s)
             LATEST_TAG=$(curl --silent "https://api.github.com/repos/Checkmarx/kics/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
             LATEST_VERSION=${LATEST_TAG#v}
