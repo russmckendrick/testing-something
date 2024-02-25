@@ -46,7 +46,7 @@
     name: "{{ item.name }}"
     address_prefix: "{{ item.subnet }}"
     virtual_network: "{{ virtual_network_output.state.name }}"
-    network_security_group: "{{ nsg_output.state.name }}"
+    security_group: "{{ nsg_output.state.name }}"
     service_endpoints:
       - service: "{{ item.service_endpoints }}"
   with_items: "{{ vnet_config.subnets }}"
