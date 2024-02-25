@@ -10,33 +10,48 @@ pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: Kics
-    displayName: Kics
-    jobs:
-    - job: runKics
-      displayName: runKics
-      steps:
-        - script: |
-            pwd
-            ls -lhat
-            OS=$(uname -s)
-            LATEST_TAG=$(curl --silent "https://api.github.com/repos/Checkmarx/kics/releases/latest" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
-            LATEST_VERSION=${LATEST_TAG#v}
-            PACKAGE_NAME=kics_${LATEST_VERSION}_${OS}_x64.tar.gz
-            TARGET_DIR=/home/vsts/kics
+  - stage: 'KICS_Scanning'
+    displayName: 'KICS Scanning'
+    jobs: 
+      - job: 'KICS_Scanning'
+        displayName: 'KICS Scanning'
+        pool:
+          vmImage: "ubuntu-latest"
+        container: checkmarx/kics:debian
+        steps:
+          # Design to fail the pipeline on results error found and export the report in both json and SARIF format.
+          - script: |
+              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif --ignore-on-exit results --exclude-paths 'you can put excluded file here.'
+              cat results.json
 
-            echo "LATEST_TAG: ${LATEST_TAG}"
-            echo "LATEST_VERSION: ${LATEST_VERSION}"
-            echo "PACKAGE_NAME: ${PACKAGE_NAME}"
-            echo "TARGET_DIR: ${TARGET_DIR}"
-            echo "OS: ${OS}"
+          # Scan results should be visible in the SARIF viewer tab of the build.
+          - task: PublishBuildArtifacts@1
+            inputs:
+              pathToPublish: $(System.DefaultWorkingDirectory)/results.sarif
+              artifactName: CodeAnalysisLogs
 
+          # Download the scan result, artifiact
+          - task: DownloadPipelineArtifact@2
+            displayName: 'Download the Security Scan Artifact Result - KICS Scanning'
+            inputs:
+              artifact: CodeAnalysisLogs
 
-            # mkdir -p ${TARGET_DIR}
-            # wget -q -c https://github.com/Checkmarx/kics/releases/download/${LATEST_TAG}/${PACKAGE_NAME} -O - | tar -xz -C ${TARGET_DIR}
-            # echo '--- START SCANNING ---'
-            # ${TARGET_DIR}/kics scan --no-progress -q ${TARGET_DIR}/assets/queries -p ${PWD} -o ${PWD}/kics-results.sarif
-        - task: PublishBuildArtifacts@1
-          inputs:
-            pathToPublish: $(System.DefaultWorkingDirectory)/kics-results.sarif
-            artifactName: CodeAnalysisLogs
+          # Bash v3
+          # Run a Bash script to parsing the result on macOS, Linux, or Windows.
+          - task: Bash@3
+            displayName: 'Query the Scan Artifact Result - KICS Scanning'
+            inputs:
+              targetType: 'inline' # 'filePath' | 'inline'. Type. Default: filePath.
+              script: |
+                ls -l $(Pipeline.Workspace)/results.sarif
+                echo "Let me try to find out if any error here >>>"
+                cat $(Pipeline.Workspace)/results.sarif | grep error
+                if [ $? -eq 0 ]
+                then
+                  echo "Failure: I found error <<severity: 'HIGH'>> in result, then failed."
+                  exit 1
+                else
+                  echo "Success: I did not find any error <<severity: 'HIGH'>> in result, then successed."
+                  exit 0
+                fi
+              failOnStderr: true # boolean. Fail on Standard Error. Default: false.
