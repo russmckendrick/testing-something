@@ -54,8 +54,8 @@ stages:
                   noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath)
                   echo "Number of issues: $noIssues"
                   if [ "$noIssues" -ge 1 ]; then
-                    echo "Pipeline failed due to more than $issueSeverity issue(s) found."
+                    echo "##[error]Pipeline failed due to more than $issueSeverity issue(s) found."
                     exit 1
                   else
-                    echo "No issue found. Pipeline continues."
+                    echo "##[section]No issue found. Progressing with pipeline"
                   fi
