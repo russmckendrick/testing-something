@@ -88,11 +88,18 @@ stages:
                   echo "##[group]Run the Ansible Playbook"
                     ansible-playbook -i inv site.yml 2>&1 | tee ansible_output.log
                   echo "##[endgroup]"
-                  echo "#Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/summary.md
-                  echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/summary.md
-                  echo "" >> $(System.DefaultWorkingDirectory)/summary.md
-                  echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/summary.md
-                  cat ansible_output.log >> $(System.DefaultWorkingDirectory)/summary.mdd
-                  echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/summary.md
-                  echo "</details>" >> $(System.DefaultWorkingDirectory)/summary.md
-                  ##vso[task.uploadsummary]$(System.DefaultWorkingDirectory)/summary.md
+                  mkdir -p $(System.DefaultWorkingDirectory)/markdown
+                  echo "#Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/markdown/summary.md
+                  echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                  echo "" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                  echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                  cat ansible_output.log >> $(System.DefaultWorkingDirectory)/markdown/summary.mdd
+                  echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                  echo "</details>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+
+          - task: PublishMarkdownReports@1
+            name: "upload_ansible_output"
+            displayName: "Upload Ansible Output"
+            inputs:
+              contentPath: "$(Build.SourcesDirectory)/markdown"
+              indexFile: "summary.md"
