@@ -69,7 +69,7 @@ stages:
       and
         (
           succeeded(),
-          eq(dependencies.scan_parse.outputs['scan_parse.setvar.OK_TO_DEPLOY'], 'true')
+          eq(dependencies.scan_parse.outputs['kics_scan_parse_result.setvar.OK_TO_DEPLOY'], 'true')
         ) 
     jobs: 
       - job: "ansible_install"
