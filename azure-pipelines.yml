@@ -51,7 +51,7 @@ stages:
                   resultsFilePath="$(Pipeline.Workspace)/results.json"
                   BREAK=$(breakSeverity)
                   echo "Checking for severity level: $BREAK"
-                  noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath)
+                  noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 100' $resultsFilePath)
                   echo "Number of issues found: $noIssues"
                   echo "##[group]Checking the scan output"
                   if [ "$noIssues" -lt 1 ]; then
