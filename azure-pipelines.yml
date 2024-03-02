@@ -1,4 +1,5 @@
 # https://marketplace.visualstudio.com/items?itemName=sariftools.scans
+# https://marketplace.visualstudio.com/items?itemName=MasamitsuMurase.publish-markdown-reports
 
 trigger:
 - main
@@ -86,14 +87,14 @@ stages:
                     pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
                   echo "##[endgroup]"
                   echo "##[group]Run the Ansible Playbook"
-                    ansible-playbook -i inv site.yml 2>&1 | tee ansible_output.log
+                    ansible-playbook -i inv site.yml 2>&1 | tee $(System.DefaultWorkingDirectory/ansible_output.log
                   echo "##[endgroup]"
                   mkdir -p $(System.DefaultWorkingDirectory)/markdown
-                  echo "#Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/markdown/summary.md
+                  echo "# Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/markdown/summary.md
                   echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
                   echo "" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
                   echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                  cat ansible_output.log >> $(System.DefaultWorkingDirectory)/markdown/summary.mdd
+                  cat $(System.DefaultWorkingDirectory/ansible_output.log >> $(System.DefaultWorkingDirectory)/markdown/summary.mdd
                   echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
                   echo "</details>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
 
