@@ -22,7 +22,7 @@ stages:
         steps:
           - script: |
               mkdir -p $(System.DefaultWorkingDirectory)/output
-              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif,html --ignore-on-exit results
+              /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats json,sarif,html,csv --ignore-on-exit results
               mv results* $(System.DefaultWorkingDirectory)/output
               ls -lhat $(System.DefaultWorkingDirectory)/output
           - task: PublishBuildArtifacts@1
