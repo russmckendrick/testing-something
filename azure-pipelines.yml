@@ -6,6 +6,7 @@ trigger:
 
 variables:
   breakSeverity: "MEDIUM"
+  subscriptionName: "azConnection"
 
 pool:
   vmImage: ubuntu-latest
@@ -76,9 +77,27 @@ stages:
       - job: "ansible_install"
         displayName: "Ansible"
         steps:           
+          - task: AzureCLI@2
+            displayName: 'Azure CLI'
+            inputs:
+              azureSubscription: '$(subscriptionName)'
+              addSpnToEnvironment: true
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(az account show --query="id" -o tsv)"
+                echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
+                echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
+                echo "##vso[task.setvariable variable=ARM_TENANT_ID]${tenantId}"   
+
           - task: Bash@3
             name: "ansible"
             displayName: "Run Ansible"
+            env:
+              AZURE_CLIENT_ID: $(ARM_CLIENT_ID)
+              AZURE_SECRET: $(ARM_CLIENT_SECRET)
+              AZURE_TENANT: $(ARM_TENANT_ID)
+              AZURE_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
             inputs:
                 targetType: "inline"
                 script: |
