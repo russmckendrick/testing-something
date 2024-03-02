@@ -55,9 +55,11 @@ stages:
                   echo "Number of issues found: $noIssues"
                   if [ "$noIssues" -lt 1 ]; then
                     echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]true"
+                    echo "##vso[task.complete result=Succeeded;]No issue found. Progressing with pipeline"
                     export OK_TO_DEPLOY=true
                   else
                       echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]false"
+                      echo "##vso[task.logissue type=error]Pipeline failed due to $noIssues issue(s) found."
                       export OK_TO_DEPLOY=false
                   fi
                   echo "OK_TO_DEPLOY is set to $OK_TO_DEPLOY"
