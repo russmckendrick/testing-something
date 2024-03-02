@@ -60,6 +60,10 @@ stages:
                     echo "##vso[task.complete result=Succeeded;]No issue found. Progressing with pipeline"
                     echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]true"
                   fi
+          - bash: |
+              echo "OK_TO_DEPLOY is set to $(OK_TO_DEPLOY)"
+            displayName: 'Check OK_TO_DEPLOY Variable'
+
 
   - stage: "run_ansible"
     displayName: "Run Ansible"
