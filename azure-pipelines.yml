@@ -55,12 +55,10 @@ stages:
                   echo "Number of issues found: $noIssues"
                   if [ "$noIssues" -lt 1 ]; then
                     echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]true"
-                    echo "##vso[task.logissue type=error]No issue found. Progressing with pipeline"
                   else
                     echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]false"
-                    echo "##vso[task.logissue type=error]Pipeline failed due to $noIssues issue(s) found."
                   fi
-                  echo "OK_TO_DEPLOY is set to $(OK_TO_DEPLOY)"
+                  echo "OK_TO_DEPLOY is set to $OK_TO_DEPLOY"
 
           - bash: |
               echo "OK_TO_DEPLOY is set to $(scan_parse.setvar.OK_TO_DEPLOY)"
