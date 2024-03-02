@@ -77,4 +77,5 @@ stages:
             inputs:
                 targetType: "inline"
                 script: |
-                  echo "Run Ansible"
+                  ansible-galaxy collection install --force azure.azcollection
+                  pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
