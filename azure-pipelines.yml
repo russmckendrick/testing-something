@@ -85,3 +85,14 @@ stages:
                     ansible-galaxy collection install --force azure.azcollection
                     pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
                   echo "##[endgroup]"
+                  echo "##[group]Run the Ansible Playbook"
+                    ansible-playbook -i inv site.yml 2>&1 | tee ansible_output.log
+                    echo "##[section]Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/summary.md
+                    echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/summary.md
+                    echo "" >> $(System.DefaultWorkingDirectory)/summary.md
+                    echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/summary.md
+                    cat ansible_output.log >> $(System.DefaultWorkingDirectory)/summary.md
+                    echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/summary.md
+                    echo "</details>" >> $(System.DefaultWorkingDirectory)/summary.md
+                    ##vso[task.uploadsummary]$(System.DefaultWorkingDirectory)/summary.md
+                  echo "##[endgroup]"
