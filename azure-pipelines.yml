@@ -90,6 +90,7 @@ stages:
             displayName: "Add SSH Key"
             inputs:
               sshKeySecureFile: "id_rsa"
+              knownHostsEntry: "azure.devops"
           - task: Bash@3
             name: "ansible"
             displayName: "Run Ansible"
