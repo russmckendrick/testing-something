@@ -86,6 +86,11 @@ stages:
                 echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
                 echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
                 echo "##vso[task.setvariable variable=ARM_TENANT_ID]${tenantId}"   
+          - task: InstallSSHKey@0
+            displayName: "Add SSH Key"
+            inputs:
+              sshPublicKey: "$(SSH_PUBLIC_KEY)"
+              sshKeySecureFile: "id_rsa"
           - task: Bash@3
             name: "ansible"
             displayName: "Run Ansible"
@@ -99,22 +104,17 @@ stages:
                 targetType: "inline"
                 script: |
                   echo "##[group]Add SSH key"
-                    mkdir ~/.ssh
-                    chmod 700 ~/.ssh/
-                    echo "$(SSH_PRIVATE_KEY)" > ~/.ssh/id_rsa
-                    chmod 600 ~/.ssh/id_rsa
-                    echo "$(SSH_PUBLIC_KEY)" > ~/.ssh/id_rsa.pub
-                    chmod 644 ~/.ssh/id_rsa.pub
-                    cat  ~/.ssh/id_rsa.pub
+                      echo "$(SSH_PUBLIC_KEY)" > ~/.ssh/id_rsa.pub
+                      chmod 644 ~/.ssh/id_rsa.pub
                   echo "##[endgroup]"
                   echo "##[group]Install the Azure Ansible Collection"
                       ansible-galaxy collection install --force azure.azcollection
                       pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
-                    echo "##[endgroup]"
-                    echo "##[group]Run the Ansible Playbook"
+                  echo "##[endgroup]"
+                  echo "##[group]Run the Ansible Playbook"
                       ansible-playbook -i inv site.yml 2>&1 | tee $(System.DefaultWorkingDirectory)/ansible_output.log
-                    echo "##[endgroup]"
-                    echo "##[group]Create the mardown file for the Ansible Playbook Output"
+                  echo "##[endgroup]"
+                  echo "##[group]Create the mardown file for the Ansible Playbook Output"
                       mkdir -p $(System.DefaultWorkingDirectory)/markdown
                       echo "# Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/markdown/summary.md
                       echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
@@ -123,7 +123,7 @@ stages:
                       cat $(System.DefaultWorkingDirectory)/ansible_output.log >> $(System.DefaultWorkingDirectory)/markdown/summary.md
                       echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
                       echo "</details>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                    echo "##[endgroup]"
+                  echo "##[endgroup]"
           - task: PublishMarkdownReports@1
             name: "upload_ansible_output"
             displayName: "Upload Ansible Output"
