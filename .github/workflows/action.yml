@@ -106,6 +106,8 @@ jobs:
           echo "\`\`\`" >> $GITHUB_OUTPUT
           echo "</details>" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: "False"
         
       - name: "Publish Ansible Playbook run to Task Summary"
         env:
