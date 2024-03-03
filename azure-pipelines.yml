@@ -1,7 +1,7 @@
 # kics-scan disable=3e2d3b2f-c22a-4df1-9cc6-a7a0aebb0c99
 
 trigger:
-  - wibble
+  - main
 
 variables:
   breakSeverity: "MEDIUM"
@@ -94,26 +94,36 @@ stages:
               AZURE_SECRET: $(ARM_CLIENT_SECRET)
               AZURE_TENANT: $(ARM_TENANT_ID)
               AZURE_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+              ANSIBLE_HOST_KEY_CHECKING: "False"
             inputs:
                 targetType: "inline"
                 script: |
+                  echo "##[group]Add SSH key"
+                    mkdir ~/.ssh
+                    chmod 700 ~/.ssh/
+                    echo "$(SSH_PRIVATE_KEY)" > ~/.ssh/id_rsa
+                    chmod 600 ~/.ssh/id_rsa
+                    echo "$(SSH_PUBLIC_KEY)" > ~/.ssh/id_rsa.pub
+                    chmod 644 ~/.ssh/id_rsa.pub
+                    cat  ~/.ssh/id_rsa.pub
+                  echo "##[endgroup]"
                   echo "##[group]Install the Azure Ansible Collection"
-                    ansible-galaxy collection install --force azure.azcollection
-                    pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
-                  echo "##[endgroup]"
-                  echo "##[group]Run the Ansible Playbook"
-                    ansible-playbook -i inv site.yml 2>&1 | tee $(System.DefaultWorkingDirectory)/ansible_output.log
-                  echo "##[endgroup]"
-                  echo "##[group]Create the mardown file for the Ansible Playbook Output"
-                    mkdir -p $(System.DefaultWorkingDirectory)/markdown
-                    echo "# Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/markdown/summary.md
-                    echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                    echo "" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                    echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                    cat $(System.DefaultWorkingDirectory)/ansible_output.log >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                    echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                    echo "</details>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
-                  echo "##[endgroup]"
+                      ansible-galaxy collection install --force azure.azcollection
+                      pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
+                    echo "##[endgroup]"
+                    echo "##[group]Run the Ansible Playbook"
+                      ansible-playbook -i inv site.yml 2>&1 | tee $(System.DefaultWorkingDirectory)/ansible_output.log
+                    echo "##[endgroup]"
+                    echo "##[group]Create the mardown file for the Ansible Playbook Output"
+                      mkdir -p $(System.DefaultWorkingDirectory)/markdown
+                      echo "# Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/markdown/summary.md
+                      echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                      echo "" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                      echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                      cat $(System.DefaultWorkingDirectory)/ansible_output.log >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                      echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                      echo "</details>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
+                    echo "##[endgroup]"
           - task: PublishMarkdownReports@1
             name: "upload_ansible_output"
             displayName: "Upload Ansible Output"
