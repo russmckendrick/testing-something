@@ -82,10 +82,17 @@ jobs:
           creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
 
       - name: "Setup SSH key for Ansible"
+        id: "add-private-key"
         uses: tanmancan/action-setup-ssh-agent-key@1.0.0
         with:
           ssh-private-key: "${{ secrets.SSH_PRIVATE_KEY }}"
-          ssh-public-key: "${{ secrets.SSH_PUBLIC_KEY }}"
+
+      - name: "Add the public Key"
+        id: "add-public-key"
+        continue-on-error: true
+        run: |
+          touch ~/.ssh/id_rsa.pub
+          echo "${{ secrets.SSH_PUBLIC_KEY }}" >> ~/.ssh/id_rsa.pub
 
       - name: "Run the playbook (with ansible-playbook)"
         id: "ansible-playbook-run"
