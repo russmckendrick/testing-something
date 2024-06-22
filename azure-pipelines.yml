@@ -4,43 +4,53 @@ trigger:
   - main
 
 variables:
-  breakSeverity: "MEDIUM"
-  subscriptionName: "azConnection"
+  - group: playbook
+  - group: azure-config
+  - name: vmImage
+    value: ubuntu-latest
+  - name: kicsImage
+    value: checkmarx/kics:debian
+  - name: breakSeverityLevel
+    value: HIGH
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: $(vmImage)
 
 stages:
+
   - stage: "scan"
     displayName: "KICS - Scan Ansible Playbook"
     jobs: 
       - job: "kics_scan"
         displayName: "Run KICS Scan"
         pool:
-          vmImage: "ubuntu-latest"
-        container: checkmarx/kics:debian
+          vmImage: $(vmImage)
+        container: $(kicsImage)
         steps:
           - script: |
               mkdir -p $(System.DefaultWorkingDirectory)/output
               /app/bin/kics scan --ci -p ${PWD} -o ${PWD} --report-formats "all" --ignore-on-exit results
               mv results* $(System.DefaultWorkingDirectory)/output
               ls -lhat $(System.DefaultWorkingDirectory)/output
+
           - task: PublishBuildArtifacts@1
             inputs:
               pathToPublish: $(System.DefaultWorkingDirectory)/output
               artifactName: CodeAnalysisLogs
+
   - stage: "scan_parse"
-    displayName: "KICS - Parse Scan Resaults"
+    displayName: "KICS - Parse Scan Results"
     jobs: 
       - job: "kics_scan_parse_result"
-        displayName: "Check KICS Scan Resaults"
+        displayName: "Check KICS Scan Results"
         pool:
-          vmImage: "ubuntu-latest"
+          vmImage: $(vmImage)
         steps:           
           - task: DownloadPipelineArtifact@2
             displayName: "Download the Security Scan Artifact Result"
             inputs:
               artifact: CodeAnalysisLogs
+
           - task: Bash@3
             name: "setvar"
             displayName: "Check for issues in the scan result"
@@ -49,7 +59,7 @@ stages:
                 targetType: "inline"
                 script: |
                   resultsFilePath="$(Pipeline.Workspace)/results.json"
-                  BREAK=$(breakSeverity)
+                  BREAK=$(breakSeverityLevel)
                   echo "Checking for severity level: $BREAK"
                   noIssues=$(jq --arg BREAK "$BREAK" '.severity_counters[$BREAK] // 0' $resultsFilePath)
                   echo "Number of issues found: $noIssues"
@@ -61,7 +71,8 @@ stages:
                       echo "##vso[task.setvariable variable=OK_TO_DEPLOY;isOutput=true]false"
                       echo "##vso[task.logissue type=error]Pipeline failed due to $noIssues issue(s) found."
                   fi
-                  echo "##[endgroup]"    
+                  echo "##[endgroup]"
+
   - stage: "run_ansible"
     displayName: "Run Ansible"
     condition: |
@@ -73,7 +84,7 @@ stages:
     jobs: 
       - job: "ansible_install"
         displayName: "Ansible"
-        steps:           
+        steps:
           - task: AzureCLI@2
             displayName: 'Azure CLI'
             inputs:
@@ -85,12 +96,14 @@ stages:
                 echo "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(az account show --query="id" -o tsv)"
                 echo "##vso[task.setvariable variable=ARM_CLIENT_ID]${servicePrincipalId}"
                 echo "##vso[task.setvariable variable=ARM_CLIENT_SECRET]${servicePrincipalKey}"
-                echo "##vso[task.setvariable variable=ARM_TENANT_ID]${tenantId}"   
+                echo "##vso[task.setvariable variable=ARM_TENANT_ID]${tenantId}"  
+
           - task: InstallSSHKey@0
             displayName: "Add SSH Key"
             inputs:
-              sshKeySecureFile: "id_rsa"
-              knownHostsEntry: "azure.devops"
+              sshKeySecureFile: "$(sshKeyFileName)"
+              knownHostsEntry: "$(knownHostsEntry)"
+
           - task: Bash@3
             name: "ansible"
             displayName: "Run Ansible"
@@ -112,9 +125,9 @@ stages:
                       pip3 install -r ~/.ansible/collections/ansible_collections/azure/azcollection/requirements-azure.txt
                   echo "##[endgroup]"
                   echo "##[group]Run the Ansible Playbook"
-                      ansible-playbook -i inv site.yml 2>&1 | tee $(System.DefaultWorkingDirectory)/ansible_output.log
+                      ansible-playbook -i $(inventoryFile) $(playbookFile) 2>&1 | tee $(System.DefaultWorkingDirectory)/ansible_output.log
                   echo "##[endgroup]"
-                  echo "##[group]Create the mardown file for the Ansible Playbook Output"
+                  echo "##[group]Create the markdown file for the Ansible Playbook Output"
                       mkdir -p $(System.DefaultWorkingDirectory)/markdown
                       echo "# Ansible Playbook Output" > $(System.DefaultWorkingDirectory)/markdown/summary.md
                       echo "<details><summary>Click to expand</summary>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
@@ -124,6 +137,7 @@ stages:
                       echo "\`\`\`" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
                       echo "</details>" >> $(System.DefaultWorkingDirectory)/markdown/summary.md
                   echo "##[endgroup]"
+
           - task: PublishMarkdownReports@1
             name: "upload_ansible_output"
             displayName: "Upload Ansible Output"
